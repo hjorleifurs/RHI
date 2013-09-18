@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #Check if connections are to many
 #2013-09-18 hs@hi.is
