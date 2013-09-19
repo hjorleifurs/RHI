@@ -62,7 +62,7 @@ fi
 # Check if OK
 if [ $STATUS -le $WARNING ]
 	then
-		echo Nginx connections are OK
+		echo Nginx connections are $STATUS - OK
                 echo "Active connections: $STATUS"
 		exit 0
 fi
@@ -70,7 +70,7 @@ fi
 # Check if to send out a warning
 if [ $STATUS -gt $WARNING ] && [ $STATUS -lt $CRITICAL ] && [ $LOAD_5min -gt $LOAD_LIMIT ]
 	then
-		echo Nginx WARNING
+		echo Nginx connections are $STATUS and load is $LOAD_5min - WARNING
 		echo "Active connections: $STATUS"
 		exit 1
 fi
@@ -78,7 +78,7 @@ fi
 # Oh shit...
 if [ $STATUS -ge $CRITICAL ] && [ $LOAD_5min -gt $LOAD_LIMIT ]
 	then
-		echo Nginx CRITICAL
+		echo Nginx connections are $STATUS and load is $LOAD_5min - CRITICAL
                 echo "Active connections: $STATUS"
 		exit 2
 fi
