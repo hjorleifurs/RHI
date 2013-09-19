@@ -3,15 +3,23 @@
 #Check if connections are to many
 #2013-09-18 hs@hi.is
 
+#2013-09-19
+#Idea from Anna Jonna: Check for load, and if load is higher than 4 then large number of connections is OK
+
+
+
 PATH=/usr/lib64/qt-3.3/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin
 export PATH
+
+LOAD_5min=`uptime | awk '{print substr($10,1,1)}'` 
 
 STATUS=`curl -s http://localhost/nginx_status | grep connections | awk '{print $3}'`
 
 # Use the icinga/nagios flags -w and -c
 
-# Default values
+# Default values - there is no flag for LOAD_LIMIT, you have to change the default value for that one 
 
+LOAD_LIMIT=1
 WARNING=10
 CRITICAL=20
 
@@ -60,7 +68,7 @@ if [ $STATUS -le $WARNING ]
 fi
 
 # Check if to send out a warning
-if [ $STATUS -gt $WARNING ] && [ $STATUS -lt $CRITICAL ]
+if [ $STATUS -gt $WARNING ] && [ $STATUS -lt $CRITICAL ] && [ $LOAD_5min -gt $LOAD_LIMIT ]
 	then
 		echo Nginx WARNING
 		echo "Active connections: $STATUS"
@@ -68,7 +76,7 @@ if [ $STATUS -gt $WARNING ] && [ $STATUS -lt $CRITICAL ]
 fi
 
 # Oh shit...
-if [ $STATUS -ge $CRITICAL ]
+if [ $STATUS -ge $CRITICAL ] && [ $LOAD_5min -gt $LOAD_LIMIT ]
 	then
 		echo Nginx CRITICAL
                 echo "Active connections: $STATUS"
