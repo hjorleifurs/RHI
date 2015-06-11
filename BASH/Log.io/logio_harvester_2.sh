@@ -38,7 +38,6 @@ status() {
 }	
 
 start() {
-
 status
 
 echo -e | tail -f /var/log/messages | stdbuf -o0  awk -v client=${client} -v logfile=messages '{printf "+log|"client"|"logfile"|info|"; print; printf "\r\n"}' | nc ${server} 28777 &
@@ -48,7 +47,6 @@ echo -e | tail -f /var/log/nginx/access.log | stdbuf -o0  awk -v client=${client
 echo -e | tail -f /var/log/nginx/error.log | stdbuf -o0  awk -v client=${client} -v logfile=nginx '{printf "+log|"client"|"logfile"|info|"; print; printf "\r\n"}' | nc ${server} 28777 &
 
 status
-
 }
 
 stop() {
@@ -59,7 +57,7 @@ stop() {
             do
                 echo $i | xargs kill -9
             done
-	echo ${client} harvester has been stopped
+status
 }
 
 case "$1" in
