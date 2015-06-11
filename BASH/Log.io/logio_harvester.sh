@@ -5,7 +5,8 @@
 
 ############ PATH ####################
 #put your path here if you need to
-PATH=/usr/bin:/usr/lib64/qt-3.3/bin:/usr/pgsql-9.4/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
 export PATH
 
 ########## CLIENT and SERVER ####################
@@ -13,22 +14,28 @@ export PATH
 #and then use those in your start script. That way you can have more
 #than one node on the same server
 
+#change the client to what you want to appear as a client name
 client=`uname -n`
-server='PUT_YOUR_SERVER_NAME_HERE'
-logfile1='/var/log/messages'
-logfile2='/var/log/secure'
-#logfile3='/full/path/to/your/logfile'
 
-###################################
+#change the server if it is not your localhost
+server='localhost'
+
+#List files with a space in between
+LOGFILES="/var/log/messages /var/log/secure"
+
+export client server LOGFILES
+
+###############################################
 
 status() {
 	#Check if we are already running
-	RUNNING=`ps -ef|grep -T ${nodename} | grep -v grep | awk '{print $2}'`
+	RUNNING=`ps -ef|grep -T "printf \"+log" | grep -v grep | awk '{print $2}'`
 	if [ "$RUNNING" = "" ]
 		then
-			echo $0 is not running
+			echo ${client} harvester is not running
 		else
-			echo $0 is running
+			echo ${client} harvester is running
+                        ps -ef|grep -F "printf \"+log" | grep -v grep
 			exit
 	fi
 }	
@@ -37,23 +44,25 @@ start() {
 
 status
 
-#Change to the logfile you want to monitor and make new lines as needed for every logfile
-echo -e | tail -f ${logfile1} | stdbuf -o0  awk  '{printf "+log|${client}|messages|info|"; print; printf "\r\n"}' | nc ${server} 28777 &
-echo -e | tail -f ${logfile2} | stdbuf -o0  awk  '{printf "+log|${client}|messages|info|"; print; printf "\r\n"}' | nc ${server} 28777 &
-#echo -e | tail -f ${logfile3} | stdbuf -o0  awk  '{printf "+log|${client}|messages|info|"; print; printf "\r\n"}' | nc ${server} 28777 &
+for i in $LOGFILES
+    do
+        echo -e | tail -f ${i} | stdbuf -o0  awk -v client=${client} -v logfile=${i} '{printf "+log|"client"|"logfile"|info|"; print; printf "\r\n"}' | nc ${server} 28777 &
+    done
 
-echo $client harvester has started
+status
+
 }
 
 stop() {
 	echo Stopping ${client} harvester
-	for PID in `ps -ef|grep -T ugla_throun | grep -v grep | awk '{print $2}'`
-		do
-			kill -9 $PID
-		done
+        PIDS=`ps -ef|grep -F "printf \"+log" | grep -v grep | awk '{print $2}'`
+        echo $PIDS
+        for i in $PIDS
+            do
+                echo $i | xargs kill -9
+            done
 	echo ${client} harvester has been stopped
 }
-
 
 case "$1" in
 	start) start ;;
