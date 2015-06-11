@@ -23,7 +23,7 @@ logfile2='/var/log/secure'
 
 status() {
 	#Check if we are already running
-	RUNNING=`ps -ef|grep -T ugla_throun | grep -v grep | awk '{print $2}'`
+	RUNNING=`ps -ef|grep -T ${nodename} | grep -v grep | awk '{print $2}'`
 	if [ "$RUNNING" = "" ]
 		then
 			echo $0 is not running
